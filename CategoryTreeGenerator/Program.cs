@@ -1,5 +1,7 @@
-﻿using System;
-using CategoryTreeGenerator.Sources;
+﻿using CategoryTreeGenerator.Sources;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.IO;
 
 namespace CategoryTreeGenerator
 {
@@ -10,25 +12,31 @@ namespace CategoryTreeGenerator
 
         private static void Main()
         {
+            IConfigurationBuilder builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            IConfigurationRoot configuration = builder.Build();
+
             Console.WriteLine("Started");
 
             IDataSource source = new MockDataSource();
 
             //очистка папки генерации
             Clean();
-            Console.WriteLine("Previous data cleaned");
 
             //создание корневых папок
-            System.IO.Directory.CreateDirectory(RentFolder);
-            System.IO.Directory.CreateDirectory(SaleFolder);
+            Directory.CreateDirectory(RentFolder);
+            Directory.CreateDirectory(SaleFolder);
 
             //генерация ветви для sale
-            Generator.BuildForSale(SaleFolder, source);
+            Generator.BuildForSale(SaleFolder, source, configuration);
 
             //генерация ветви для rent
-            Generator.BuildForRent(RentFolder, source);
+            Generator.BuildForRent(RentFolder, source, configuration);
 
             Console.WriteLine("Finished");
+
             Console.ReadLine();
         }
 
@@ -46,6 +54,8 @@ namespace CategoryTreeGenerator
             {
                 System.IO.Directory.Delete(SaleFolder, true);
             }
+
+            Console.WriteLine("Previous data cleaned");
         }
     }
 }

@@ -13,7 +13,7 @@ namespace CategoryTreeGenerator.Services
         private readonly CatalogModuleCategories _categories;
         private readonly CatalogModuleProducts _products;
 
-        public RestCatalogService()
+        public RestCatalogService(Uri uri, string appId, string secretKey)
         {
             ServicePointManager.UseNagleAlgorithm = false;
 
@@ -22,11 +22,7 @@ namespace CategoryTreeGenerator.Services
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
             };
 
-            VirtoCommerceApiRequestHandler handler = new VirtoCommerceApiRequestHandler(
-                "c1fcfe28dd2e42908a9fc021b7d0e7c4",
-                "29356b8d61ca3d41538f7bafc972dae1d6dd26c6f699276d116c4f66cc0bcd007b9f459e3bb8d09658310b569f0d64c01d16fb91e94f76aab91e5d4aed68cbdc");
-
-            Uri uri = new Uri("http://localhost/estate-admin");
+            VirtoCommerceApiRequestHandler handler = new VirtoCommerceApiRequestHandler(appId, secretKey);
 
             _categories =
                 new CatalogModuleCategories(

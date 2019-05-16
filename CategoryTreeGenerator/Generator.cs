@@ -2,6 +2,7 @@
 using CategoryTreeGenerator.Services;
 using CategoryTreeGenerator.Sources;
 using CategoryTreeGenerator.Tools;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,24 +18,30 @@ namespace CategoryTreeGenerator
     /// </summary>
     public static class Generator
     {
+        private static string _catalogId;
         private static IDataSource _dataSource;
         private static ICatalogService _catalogService;
         private static LocationCategories _categoriesIds;
 
-        public static void BuildForSale(string path, IDataSource source)
+        public static void BuildForSale(string path, IDataSource source, IConfiguration configuration)
         {
-            BuildHierarchy(path, source.TypesForSale, source);
+            BuildHierarchy(path, source.TypesForSale, source, configuration);
         }
 
-        public static void BuildForRent(string path, IDataSource source)
+        public static void BuildForRent(string path, IDataSource source, IConfiguration configuration)
         {
-            BuildHierarchy(path, source.TypesForRent, source);
+            BuildHierarchy(path, source.TypesForRent, source, configuration);
         }
 
-        private static void BuildHierarchy(string path, IEnumerable<Type> types, IDataSource source)
+        private static void BuildHierarchy(string path, IEnumerable<Type> types, IDataSource source,
+            IConfiguration configuration)
         {
             _dataSource = source;
-            _catalogService = new RestCatalogService();
+            _catalogId = configuration.GetSection("Catalog:Id").Value;
+
+            _catalogService = new RestCatalogService(new Uri(configuration.GetSection("Endpoint:Url").Value),
+                configuration.GetSection("Endpoint:AppId").Value,
+                configuration.GetSection("Endpoint:SecretKey").Value);
 
             Directory.CreateDirectory(path);
 
@@ -87,7 +94,8 @@ namespace CategoryTreeGenerator
             }
         }
 
-        private static void AttachTags(string basePath, string nameWithoutExtension, string parentUrl, string categoryId)
+        private static void AttachTags(string basePath, string nameWithoutExtension, string parentUrl,
+            string categoryId)
         {
             List<Tag> tags = _dataSource.Tags.ToList();
 
@@ -193,7 +201,8 @@ namespace CategoryTreeGenerator
                 areaId = _categoriesIds.AreaId = CreateCategory("area", provinceId);
             }
 
-            string name = $"{parent.Description} in {l.Area.Description} ({l.Costa.Description}, {l.Province.Description})";
+            string name =
+                $"{parent.Description} in {l.Area.Description} ({l.Costa.Description}, {l.Province.Description})";
             string baseName =
                 $"{areaPath}\\{name}";
 
@@ -292,7 +301,7 @@ namespace CategoryTreeGenerator
             {
                 Id = categoryId.ToString(),
                 ParentId = parentId,
-                CatalogId = "bbe2d2cc7dda4a8dbbb6a44ed63b6670",
+                CatalogId = _catalogId,
                 Name = name,
                 IsVirtual = false,
                 Code = code
@@ -301,18 +310,18 @@ namespace CategoryTreeGenerator
             return categoryId;
         }
 
-        private static string CreateProduct(string name, string url, string categoryId)
+        private static void CreateProduct(string name, string url, string categoryId)
         {
             string productId = Guid.NewGuid().ToString();
 
             try
             {
-                Product result = _catalogService.CreateProduct(new Product()
+                Product product = _catalogService.CreateProduct(new Product()
                 {
-                    //Id = productId,
+                    Id = productId,
                     Code = productId.Substring(0, 5),
                     CategoryId = categoryId,
-                    CatalogId = "bbe2d2cc7dda4a8dbbb6a44ed63b6670",
+                    CatalogId = _catalogId,
                     Name = name,
                     IsActive = true,
                     ProductType = "Physical",
@@ -328,15 +337,13 @@ namespace CategoryTreeGenerator
                         }
                     },
                 }).Result;
+
+                Console.WriteLine($"Created product [{name}]: {product.Id}, category: {categoryId}");
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine($"Error creating product {productId}, category={categoryId}: {e.Message}");
             }
-
-            Console.WriteLine($"Created product [{name}]: {productId}, category: {categoryId}");
-
-            return productId;
         }
     }
 }

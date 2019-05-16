@@ -28,8 +28,8 @@ namespace CategoryTreeGenerator.Sources
 
             Types = new List<Type>
             {
-                new Type("property-for-sale", "Property for sale"),
-                new Type("property-for-rent", "Property for rent"),
+                new Type("property-for-sale", "For sale"),
+                new Type("property-for-rent", "For rent"),
                 new Type("apartments-for-sale", "Apartments for sale"),
                 new Type("apartments-for-rent", "Apartments for rent")
             };
