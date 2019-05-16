@@ -7,8 +7,7 @@ namespace CategoryTreeGenerator
 {
     internal static class Program
     {
-        private const string RentFolder = "for-rent";
-        private const string SaleFolder = "for-sale";
+        private const string RootFolder = "type";
 
         private static void Main()
         {
@@ -26,14 +25,9 @@ namespace CategoryTreeGenerator
             Clean();
 
             //создание корневых папок
-            Directory.CreateDirectory(RentFolder);
-            Directory.CreateDirectory(SaleFolder);
+            Directory.CreateDirectory(RootFolder);
 
-            //генерация ветви для sale
-            Generator.BuildForSale(SaleFolder, source, configuration);
-
-            //генерация ветви для rent
-            Generator.BuildForRent(RentFolder, source, configuration);
+            Generator.Build(RootFolder, source, configuration);
 
             Console.WriteLine("Finished");
 
@@ -45,14 +39,9 @@ namespace CategoryTreeGenerator
         /// </summary>
         private static void Clean()
         {
-            if (System.IO.Directory.Exists(RentFolder))
+            if (System.IO.Directory.Exists(RootFolder))
             {
-                System.IO.Directory.Delete(RentFolder, true);
-            }
-
-            if (System.IO.Directory.Exists(SaleFolder))
-            {
-                System.IO.Directory.Delete(SaleFolder, true);
+                System.IO.Directory.Delete(RootFolder, true);
             }
 
             Console.WriteLine("Previous data cleaned");

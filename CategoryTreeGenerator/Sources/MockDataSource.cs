@@ -1,6 +1,5 @@
 using CategoryTreeGenerator.Models;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace CategoryTreeGenerator.Sources
 {
@@ -11,10 +10,6 @@ namespace CategoryTreeGenerator.Sources
         public IEnumerable<Tag> Tags { get; }
 
         public IEnumerable<Type> Types { get; }
-
-        public IEnumerable<Type> TypesForRent => Types.Where(x => x.Url.Contains("for-rent"));
-
-        public IEnumerable<Type> TypesForSale => Types.Where(x => x.Url.Contains("for-sale"));
 
         public MockDataSource()
         {

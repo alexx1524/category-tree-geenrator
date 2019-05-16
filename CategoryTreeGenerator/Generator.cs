@@ -23,14 +23,9 @@ namespace CategoryTreeGenerator
         private static ICatalogService _catalogService;
         private static LocationCategories _categoriesIds;
 
-        public static void BuildForSale(string path, IDataSource source, IConfiguration configuration)
+        public static void Build(string path, IDataSource source, IConfiguration configuration)
         {
-            BuildHierarchy(path, source.TypesForSale, source, configuration);
-        }
-
-        public static void BuildForRent(string path, IDataSource source, IConfiguration configuration)
-        {
-            BuildHierarchy(path, source.TypesForRent, source, configuration);
+            BuildHierarchy(path, source.Types, source, configuration);
         }
 
         private static void BuildHierarchy(string path, IEnumerable<Type> types, IDataSource source,
@@ -130,7 +125,8 @@ namespace CategoryTreeGenerator
             (string provincePath, string provinceId) = BuildProvince(costaPath, item, l, costaId);
             (string areaPath, string areaId) = BuildArea(provincePath, item, l, provinceId);
             (string cityPath, string cityId) = BuildCity(areaPath, item, l, areaId);
-            (_, _) = BuildEndLocation(cityPath, item, l, cityId);
+            (string endLocationPath, string endLocationId) = BuildEndLocation(cityPath, item, l, cityId);
+            (_, _) = BuildEndLocation2(endLocationPath, item, l, endLocationId);
         }
 
         private static (string, string) BuildCosta(string path, BaseItem parent, Location l, string parentId)
@@ -143,9 +139,17 @@ namespace CategoryTreeGenerator
                 Directory.CreateDirectory(costaPath);
             }
 
+            //добавление вложенной папки
             if (string.IsNullOrEmpty(costaId))
             {
                 costaId = _categoriesIds.CostaId = CreateCategory("costa", parentId);
+            }
+
+            //добавление мастер данных
+            if (!_categoriesIds.CostaMasterData.Contains(l.Costa.Url))
+            {
+                CreateProduct(l.Costa.Description, l.Costa.Url, costaId, true);
+                _categoriesIds.CostaMasterData.Add(l.Costa.Url);
             }
 
             string name = $"{parent.Description} in {l.Costa.Description}";
@@ -174,6 +178,13 @@ namespace CategoryTreeGenerator
                 provinceId = _categoriesIds.ProvinceId = CreateCategory("province", costaId);
             }
 
+            //добавление мастер данных
+            if (!_categoriesIds.ProvinceMasterData.Contains(l.Province.Url))
+            {
+                CreateProduct(l.Province.Description, l.Province.Url, provinceId, true);
+                _categoriesIds.ProvinceMasterData.Add(l.Province.Url);
+            }
+
             string name = $"{parent.Description} in {l.Province.Description} ({l.Costa.Description})";
             string baseName =
                 $"{provincePath}\\{name})";
@@ -199,6 +210,13 @@ namespace CategoryTreeGenerator
             if (string.IsNullOrEmpty(areaId))
             {
                 areaId = _categoriesIds.AreaId = CreateCategory("area", provinceId);
+            }
+
+            //добавление мастер данных
+            if (!_categoriesIds.AreaMasterData.Contains(l.Area.Url))
+            {
+                CreateProduct(l.Area.Description, l.Area.Url, areaId, true);
+                _categoriesIds.AreaMasterData.Add(l.Area.Url);
             }
 
             string name =
@@ -230,6 +248,13 @@ namespace CategoryTreeGenerator
                 cityId = _categoriesIds.CityId = CreateCategory("city", provinceId);
             }
 
+            //добавление мастер данных
+            if (!_categoriesIds.CityMasterData.Contains(l.City.Url))
+            {
+                CreateProduct(l.City.Description, l.City.Url, cityId, true);
+                _categoriesIds.CityMasterData.Add(l.City.Url);
+            }
+
             string name = $"{parent.Description} in {l.City.Description} " +
                           $"({l.Costa.Description}, {l.Province.Description}, {l.Area.Description})";
 
@@ -248,7 +273,7 @@ namespace CategoryTreeGenerator
         private static (string, string) BuildEndLocation(string path, BaseItem parent, Location l, string cityId)
         {
             string endLocationPath = path + "\\end_location";
-            string endLocationId = _categoriesIds.EndLocation;
+            string endLocationId = _categoriesIds.EndLocationId;
 
             if (!Directory.Exists(endLocationPath))
             {
@@ -257,7 +282,14 @@ namespace CategoryTreeGenerator
 
             if (string.IsNullOrEmpty(endLocationId))
             {
-                endLocationId = _categoriesIds.EndLocation = CreateCategory("end_location", cityId);
+                endLocationId = _categoriesIds.EndLocationId = CreateCategory("end_location", cityId);
+            }
+
+            //добавление мастер данных
+            if (!_categoriesIds.EndLocationMasterData.Contains(l.EndLocation.Url))
+            {
+                CreateProduct(l.EndLocation.Description, l.EndLocation.Url, endLocationId, true);
+                _categoriesIds.EndLocationMasterData.Add(l.EndLocation.Url);
             }
 
             string name = $"{parent.Description} in {l.City.Description} - {l.EndLocation.Description} " +
@@ -272,22 +304,46 @@ namespace CategoryTreeGenerator
 
             AttachTags(baseName, name, url, endLocationId);
 
-            name = $"{parent.Description} in {l.City.Description} " +
-                   $"- {l.EndLocation2.Description} in {l.EndLocation.Description} " +
-                   $"({l.Costa.Description}, {l.Province.Description}, {l.Area.Description})";
+            return (endLocationPath, endLocationId);
+        }
 
-            baseName =
-                $"{endLocationPath}\\{name}";
+        private static (string, string) BuildEndLocation2(string path, BaseItem parent, Location l, string cityId)
+        {
+            string endLocation2Path = path + "\\end_location2";
+            string endLocation2Id = _categoriesIds.EndLocation2Id;
 
-            url =
+            if (!Directory.Exists(endLocation2Path))
+            {
+                Directory.CreateDirectory(endLocation2Path);
+            }
+
+            if (string.IsNullOrEmpty(endLocation2Id))
+            {
+                endLocation2Id = _categoriesIds.EndLocation2Id = CreateCategory("end_location2", cityId);
+            }
+
+            //добавление мастер данных
+            if (!_categoriesIds.EndLocation2MasterData.Contains(l.EndLocation2.Url))
+            {
+                CreateProduct(l.EndLocation2.Description, l.EndLocation2.Url, endLocation2Id, true);
+                _categoriesIds.EndLocation2MasterData.Add(l.EndLocation2.Url);
+            }
+
+            string name = $"{parent.Description} in {l.City.Description} " +
+                          $"- {l.EndLocation2.Description} in {l.EndLocation.Description} " +
+                          $"({l.Costa.Description}, {l.Province.Description}, {l.Area.Description})";
+
+            string baseName =
+                $"{endLocation2Path}\\{name}";
+
+            string url =
                 $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.Area.Url}/{l.City.Url}/{l.EndLocation2.Url}-in-{l.EndLocation.Url}";
 
             File.WriteAllText(baseName + ".txt", url);
 
-            AttachTags(baseName, name, url, endLocationId);
+            AttachTags(baseName, name, url, endLocation2Id);
 
-
-            return (endLocationPath, endLocationId);
+            return (endLocation2Path, endLocation2Id);
         }
 
         private static string CreateCategory(string name, string parentId = null)
@@ -299,7 +355,7 @@ namespace CategoryTreeGenerator
 
             System.Net.Http.HttpResponseMessage result = _catalogService.CreateCategory(new Category()
             {
-                Id = categoryId.ToString(),
+                Id = categoryId,
                 ParentId = parentId,
                 CatalogId = _catalogId,
                 Name = name,
@@ -310,25 +366,29 @@ namespace CategoryTreeGenerator
             return categoryId;
         }
 
-        private static void CreateProduct(string name, string url, string categoryId)
+        private static void CreateProduct(string name, string url, string categoryId, bool masterData = false)
         {
             string productId = Guid.NewGuid().ToString();
 
+            string code = masterData
+                ? $"DATA_{productId.Substring(0, 5)}"
+                : $"PAGE_{productId.Substring(0, 5)}";
+
             try
             {
-                Product product = _catalogService.CreateProduct(new Product()
+                Product product = _catalogService.CreateProduct(new Product
                 {
                     Id = productId,
-                    Code = productId.Substring(0, 5),
+                    Code = code,
                     CategoryId = categoryId,
                     CatalogId = _catalogId,
                     Name = name,
                     IsActive = true,
                     ProductType = "Physical",
                     Properties = new List<Property>(),
-                    SeoInfos = new List<SeoInfo>()
+                    SeoInfos = new List<SeoInfo>
                     {
-                        new SeoInfo()
+                        new SeoInfo
                         {
                             Id = Guid.NewGuid().ToString(),
                             LanguageCode = "en-US",

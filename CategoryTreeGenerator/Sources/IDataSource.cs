@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using CategoryTreeGenerator.Models;
+using System.Collections.Generic;
 
 namespace CategoryTreeGenerator.Sources
 {
@@ -18,16 +18,6 @@ namespace CategoryTreeGenerator.Sources
         /// </summary>
         IEnumerable<Type> Types { get; }
 
-        /// <summary>
-        /// Список типов недвижимости для аренды
-        /// </summary>
-        IEnumerable<Type> TypesForRent { get; }
-
-        /// <summary>
-        /// Список типов недвижимости для продажи
-        /// </summary>
-        IEnumerable<Type> TypesForSale { get; }
-        
         /// <summary>
         /// Список локаций
         /// </summary>
