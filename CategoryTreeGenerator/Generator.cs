@@ -54,17 +54,44 @@ namespace CategoryTreeGenerator
 
             _categoriesIds = new LocationCategories();
 
+            List<string> typesMasterData = new List<string>();
+
             foreach (Type type in types)
             {
                 File.WriteAllText($"{path}\\{type.Description}.txt", type.Url);
 
-                CreateProduct(type.Description, type.Url, rootId);
+                AddTypeMasterData(type, rootId, typesMasterData);
 
                 BuildTags(path, type, rootId);
 
                 foreach (Location location in source.Locations)
                 {
                     BuildLocation(path, type, location, rootId);
+                }
+            }
+        }
+
+        private static void AddTypeMasterData(Type type, string rootId, List<string> createdData)
+        {
+            if (type.Url.StartsWith("property-"))
+            {
+                if (!createdData.Contains(type.Url))
+                {
+                    CreateProduct(type.Description, type.Url, rootId, true);
+                    createdData.Add(type.Url);
+                }
+
+            }
+            else
+            {
+                string typeUrl = type.Url.Substring(0, type.Url.IndexOf("-for-", StringComparison.Ordinal));
+                string typeName =
+                    type.Description.Substring(0, type.Description.IndexOf(" for ", StringComparison.Ordinal));
+
+                if (!createdData.Contains(typeUrl))
+                {
+                    CreateProduct(typeName, typeUrl, rootId, true);
+                    createdData.Add(typeUrl);
                 }
             }
         }
