@@ -77,10 +77,19 @@ namespace CategoryTreeGenerator
             {
                 if (!createdData.Contains(type.Url))
                 {
-                    CreateProduct(type.Description, type.Url, rootId, true);
+                    CreateProduct(type.Description, type.Url, rootId);
                     createdData.Add(type.Url);
                 }
 
+                int pos = type.Description.IndexOf(" for ", StringComparison.Ordinal);
+
+                string name = type.Description.Substring(pos + 1, type.Description.Length - pos - 1);
+
+                name = name.First().ToString().ToUpper() + string.Join("", name.Skip(1));
+
+                string url = type.Url.Replace("property-", "");
+
+                CreateProduct(name, url, rootId, true);
             }
             else
             {
@@ -195,6 +204,8 @@ namespace CategoryTreeGenerator
 
             File.WriteAllText(basePath + ".txt", url);
 
+            CreateProduct(name, url, costaId);
+
             AttachTags(basePath, name, url, costaId);
 
             return (costaPath, costaId);
@@ -228,6 +239,8 @@ namespace CategoryTreeGenerator
             string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}";
 
             File.WriteAllText(baseName + ".txt", url);
+
+            CreateProduct(name, url, provinceId);
 
             AttachTags(baseName, name, url, provinceId);
 
@@ -264,6 +277,8 @@ namespace CategoryTreeGenerator
             string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.Area.Url}";
 
             File.WriteAllText(baseName + ".txt", url);
+
+            CreateProduct(name, url, areaId);
 
             AttachTags(baseName, name, url, areaId);
 
@@ -302,6 +317,8 @@ namespace CategoryTreeGenerator
 
             File.WriteAllText(baseName + ".txt", url);
 
+            CreateProduct(name, url, cityId);
+
             AttachTags(baseName, name, url, cityId);
 
             return (cityPath, cityId);
@@ -338,6 +355,8 @@ namespace CategoryTreeGenerator
             string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.Area.Url}/{l.City.Url}/{l.EndLocation.Url}";
 
             File.WriteAllText(baseName + ".txt", url);
+
+            CreateProduct(name, url, endLocationId);
 
             AttachTags(baseName, name, url, endLocationId);
 
@@ -377,6 +396,8 @@ namespace CategoryTreeGenerator
                 $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.Area.Url}/{l.City.Url}/{l.EndLocation2.Url}-in-{l.EndLocation.Url}";
 
             File.WriteAllText(baseName + ".txt", url);
+
+            CreateProduct(name, url, endLocation2Id);
 
             AttachTags(baseName, name, url, endLocation2Id);
 
