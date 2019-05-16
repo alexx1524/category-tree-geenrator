@@ -1,0 +1,2 @@
+﻿$modules = @('Catalog')
+$modules.ForEach( { autoRest -Input http://localhost/estate-admin/docs/VirtoCommerce.$_/v1  -OutputFileName $_`ModuleApi.cs -Namespace VirtoCommerce.Storefront.AutoRestClients.$_`ModuleApi -ClientName $_`ModuleApiClient -OutputDirectory CategoryTreeGenerator\AutoRestClients -AddCredentials true -UseDateTimeOffset false })
