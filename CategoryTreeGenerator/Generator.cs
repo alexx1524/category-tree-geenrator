@@ -38,6 +38,16 @@ namespace CategoryTreeGenerator
                 configuration.GetSection("Endpoint:AppId").Value,
                 configuration.GetSection("Endpoint:SecretKey").Value);
 
+
+            //генерация мастер данных тегов на 0 уровне
+            string tagsCategoryId = CreateCategory("tags");
+
+            foreach (Tag tag in _dataSource.Tags)
+            {
+                CreateProduct(tag.Description, tag.Url, tagsCategoryId, true);
+            }
+
+            //генерация дерева мастер данных и посадочных страниц
             Directory.CreateDirectory(path);
 
             string rootId = CreateCategory(path);
