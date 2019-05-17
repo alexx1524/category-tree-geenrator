@@ -104,9 +104,9 @@ namespace CategoryTreeGenerator
 
                 string id = CreateProduct(dataTypeName, dataTypeUrl, rootId, true);
 
-                if (!_types.ContainsKey(type.Url))
+                if (!_types.ContainsKey(dataTypeUrl))
                 {
-                    _types.Add(type.Url, new KeyValuePair<string, string>(id, dataTypeName));
+                    _types.Add(dataTypeUrl, new KeyValuePair<string, string>(id, dataTypeName));
                 }
             }
             // добавление мастер данных для отдельных типов без dealtype (for rent, for sale)
@@ -116,22 +116,31 @@ namespace CategoryTreeGenerator
                 dataTypeName =
                     type.Description.Substring(0, type.Description.IndexOf(" for ", StringComparison.Ordinal));
 
-                if (!_types.ContainsKey(type.Url))
+                if (!_types.ContainsKey(dataTypeUrl))
                 {
-                    string id;
+                    string id = null;
 
                     //если у типа задан ULR ассоциации, то выполняем поиск среди зарегистрированных типов
-                    if (!string.IsNullOrEmpty(type.AssociatedTypeUrl) && _types.ContainsKey(type.AssociatedTypeUrl))
+                    if (!string.IsNullOrEmpty(type.AssociatedTypeUrl))
                     {
-                        id = CreateProduct(dataTypeName, dataTypeUrl, rootId, true,
-                            _types[type.AssociatedTypeUrl].Key, _types[type.AssociatedTypeUrl].Value);
+                        string dataTypeAssUrl = type.AssociatedTypeUrl.Substring(0,
+                            type.AssociatedTypeUrl.IndexOf("-for-", StringComparison.Ordinal));
+
+                        if (_types.ContainsKey(dataTypeAssUrl))
+                        {
+                            id = CreateProduct(dataTypeName, dataTypeUrl, rootId, true,
+                                _types[dataTypeAssUrl].Key, _types[dataTypeAssUrl].Value);
+                        }
                     }
                     else
                     {
                         id = CreateProduct(dataTypeName, dataTypeUrl, rootId, true);
                     }
 
-                    _types.Add(type.Url, new KeyValuePair<string, string>(id, dataTypeName));
+                    if (!string.IsNullOrEmpty(id))
+                    {
+                        _types.Add(dataTypeUrl, new KeyValuePair<string, string>(id, dataTypeName));
+                    }
                 }
             }
         }
