@@ -19,6 +19,16 @@ namespace CategoryTreeGenerator.Models
         public List<string> EndLocation2MasterData { get; set; } = new List<string>();
     }
 
+    public class LocationMasterData
+    {
+        public string CostaId { get; set; }
+        public string ProvinceId { get; set; }
+        public string AreaId { get; set; }
+        public string CityId { get; set; }
+        public string EndLocationId { get; set; }
+        public string EndLocation2Id { get; set; }
+    }
+
     public class LocationDetails : BaseItem
     {
         public string CategoryId { get; set; }

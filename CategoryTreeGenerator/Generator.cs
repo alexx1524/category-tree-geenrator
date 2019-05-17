@@ -22,6 +22,7 @@ namespace CategoryTreeGenerator
         private static IDataSource _dataSource;
         private static ICatalogService _catalogService;
         private static LocationCategories _categoriesIds;
+        private static LocationMasterData _locationMasterData;
 
         public static void Build(string path, IDataSource source, IConfiguration configuration)
         {
@@ -167,8 +168,10 @@ namespace CategoryTreeGenerator
 
         private static void BuildLocation(string path, BaseItem item, Location l, string parentId)
         {
-            (string costaPath, string costaId) = BuildCosta(path, item, l, parentId);
-            (string provincePath, string provinceId) = BuildProvince(costaPath, item, l, costaId);
+            _locationMasterData = new LocationMasterData();
+
+            (string costaPath, string costaCategoryId) = BuildCosta(path, item, l, parentId);
+            (string provincePath, string provinceId) = BuildProvince(costaPath, item, l, costaCategoryId);
             (string areaPath, string areaId) = BuildArea(provincePath, item, l, provinceId);
             (string cityPath, string cityId) = BuildCity(areaPath, item, l, areaId);
             (string endLocationPath, string endLocationId) = BuildEndLocation(cityPath, item, l, cityId);
@@ -194,7 +197,9 @@ namespace CategoryTreeGenerator
             //добавление мастер данных
             if (!_categoriesIds.CostaMasterData.Contains(l.Costa.Url))
             {
-                CreateProduct(l.Costa.Description, l.Costa.Url, costaId, true);
+                _locationMasterData.CostaId =
+                    CreateProduct(l.Costa.Description, l.Costa.Url, costaId, true);
+
                 _categoriesIds.CostaMasterData.Add(l.Costa.Url);
             }
 
@@ -229,7 +234,10 @@ namespace CategoryTreeGenerator
             //добавление мастер данных
             if (!_categoriesIds.ProvinceMasterData.Contains(l.Province.Url))
             {
-                CreateProduct(l.Province.Description, l.Province.Url, provinceId, true);
+                _locationMasterData.ProvinceId =
+                    CreateProduct(l.Province.Description, l.Province.Url, provinceId, true,
+                        _locationMasterData.CostaId, l.Costa.Description);
+
                 _categoriesIds.ProvinceMasterData.Add(l.Province.Url);
             }
 
@@ -265,7 +273,10 @@ namespace CategoryTreeGenerator
             //добавление мастер данных
             if (!_categoriesIds.AreaMasterData.Contains(l.Area.Url))
             {
-                CreateProduct(l.Area.Description, l.Area.Url, areaId, true);
+                _locationMasterData.AreaId =
+                    CreateProduct(l.Area.Description, l.Area.Url, areaId, true,
+                        _locationMasterData.ProvinceId, l.Province.Description);
+
                 _categoriesIds.AreaMasterData.Add(l.Area.Url);
             }
 
@@ -303,7 +314,10 @@ namespace CategoryTreeGenerator
             //добавление мастер данных
             if (!_categoriesIds.CityMasterData.Contains(l.City.Url))
             {
-                CreateProduct(l.City.Description, l.City.Url, cityId, true);
+                _locationMasterData.CityId =
+                    CreateProduct(l.City.Description, l.City.Url, cityId, true,
+                        _locationMasterData.AreaId, l.Area.Description);
+
                 _categoriesIds.CityMasterData.Add(l.City.Url);
             }
 
@@ -342,7 +356,9 @@ namespace CategoryTreeGenerator
             //добавление мастер данных
             if (!_categoriesIds.EndLocationMasterData.Contains(l.EndLocation.Url))
             {
-                CreateProduct(l.EndLocation.Description, l.EndLocation.Url, endLocationId, true);
+                _locationMasterData.EndLocationId = CreateProduct(l.EndLocation.Description, l.EndLocation.Url,
+                    endLocationId, true, _locationMasterData.CityId, l.City.Description);
+
                 _categoriesIds.EndLocationMasterData.Add(l.EndLocation.Url);
             }
 
@@ -381,7 +397,10 @@ namespace CategoryTreeGenerator
             //добавление мастер данных
             if (!_categoriesIds.EndLocation2MasterData.Contains(l.EndLocation2.Url))
             {
-                CreateProduct(l.EndLocation2.Description, l.EndLocation2.Url, endLocation2Id, true);
+                _locationMasterData.EndLocation2Id = CreateProduct(l.EndLocation2.Description, l.EndLocation2.Url,
+                    endLocation2Id, true, _locationMasterData.EndLocationId,
+                    l.EndLocation.Description);
+
                 _categoriesIds.EndLocation2MasterData.Add(l.EndLocation2.Url);
             }
 
@@ -424,7 +443,8 @@ namespace CategoryTreeGenerator
             return categoryId;
         }
 
-        private static void CreateProduct(string name, string url, string categoryId, bool masterData = false)
+        private static string CreateProduct(string name, string url, string categoryId, bool masterData = false,
+            string associationId = null, string associasionName = null)
         {
             string productId = Guid.NewGuid().ToString();
 
@@ -434,6 +454,18 @@ namespace CategoryTreeGenerator
 
             try
             {
+                List<ProductAssociation> associations = new List<ProductAssociation>();
+                if (!string.IsNullOrEmpty(associationId))
+                {
+                    associations.Add(new ProductAssociation
+                    {
+                        Type = "Related Items",
+                        AssociatedObjectId = associationId,
+                        AssociatedObjectName = associasionName ?? "No name",
+                        AssociatedObjectType = "product"
+                    });
+                }
+
                 Product product = _catalogService.CreateProduct(new Product
                 {
                     Id = productId,
@@ -444,6 +476,7 @@ namespace CategoryTreeGenerator
                     IsActive = true,
                     ProductType = "Physical",
                     Properties = new List<Property>(),
+                    Associations = associations,
                     SeoInfos = new List<SeoInfo>
                     {
                         new SeoInfo
@@ -457,11 +490,15 @@ namespace CategoryTreeGenerator
                 }).Result;
 
                 Console.WriteLine($"Created product [{name}]: {product.Id}, category: {categoryId}");
+
+                return product.Id;
             }
             catch (Exception e)
             {
                 Console.WriteLine($"Error creating product {productId}, category={categoryId}: {e.Message}");
             }
+
+            return null;
         }
     }
 }
