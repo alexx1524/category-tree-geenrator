@@ -24,6 +24,9 @@ namespace CategoryTreeGenerator
         private static LocationCategories _categoriesIds;
         private static LocationMasterData _locationMasterData;
 
+        private static readonly Dictionary<string, KeyValuePair<string, string>> _types =
+            new Dictionary<string, KeyValuePair<string, string>>();
+
         public static void Build(string path, IDataSource source, IConfiguration configuration)
         {
             BuildHierarchy(path, source.Types, source, configuration);
@@ -72,36 +75,63 @@ namespace CategoryTreeGenerator
             }
         }
 
+        /// <summary>
+        /// Метод добавления мастер данных и посадочных страниц для типа недвижимости и аренды или продажи
+        /// </summary>
         private static void AddTypeMasterData(Type type, string rootId, List<string> createdData)
         {
+            string dataTypeName;
+            string dataTypeUrl;
+
+            // добавление посадочной страницы для типа other_type (property for sale, property for rent)
             if (type.Url.StartsWith("property-"))
             {
                 if (!createdData.Contains(type.Url))
                 {
                     CreateProduct(type.Description, type.Url, rootId);
+
                     createdData.Add(type.Url);
                 }
 
+                //добавление мастер данных для (for rent и for sale)
                 int pos = type.Description.IndexOf(" for ", StringComparison.Ordinal);
 
-                string name = type.Description.Substring(pos + 1, type.Description.Length - pos - 1);
+                dataTypeName = type.Description.Substring(pos + 1, type.Description.Length - pos - 1);
 
-                name = name.First().ToString().ToUpper() + string.Join("", name.Skip(1));
+                dataTypeName = dataTypeName.First().ToString().ToUpper() + string.Join("", dataTypeName.Skip(1));
 
-                string url = type.Url.Replace("property-", "");
+                dataTypeUrl = type.Url.Replace("property-", "");
 
-                CreateProduct(name, url, rootId, true);
+                string id = CreateProduct(dataTypeName, dataTypeUrl, rootId, true);
+
+                if (!_types.ContainsKey(type.Url))
+                {
+                    _types.Add(type.Url, new KeyValuePair<string, string>(id, dataTypeName));
+                }
             }
+            // добавление мастер данных для отдельных типов без dealtype (for rent, for sale)
             else
             {
-                string typeUrl = type.Url.Substring(0, type.Url.IndexOf("-for-", StringComparison.Ordinal));
-                string typeName =
+                dataTypeUrl = type.Url.Substring(0, type.Url.IndexOf("-for-", StringComparison.Ordinal));
+                dataTypeName =
                     type.Description.Substring(0, type.Description.IndexOf(" for ", StringComparison.Ordinal));
 
-                if (!createdData.Contains(typeUrl))
+                if (!_types.ContainsKey(type.Url))
                 {
-                    CreateProduct(typeName, typeUrl, rootId, true);
-                    createdData.Add(typeUrl);
+                    string id;
+
+                    //если у типа задан ULR ассоциации, то выполняем поиск среди зарегистрированных типов
+                    if (!string.IsNullOrEmpty(type.AssociatedTypeUrl) && _types.ContainsKey(type.AssociatedTypeUrl))
+                    {
+                        id = CreateProduct(dataTypeName, dataTypeUrl, rootId, true,
+                            _types[type.AssociatedTypeUrl].Key, _types[type.AssociatedTypeUrl].Value);
+                    }
+                    else
+                    {
+                        id = CreateProduct(dataTypeName, dataTypeUrl, rootId, true);
+                    }
+
+                    _types.Add(type.Url, new KeyValuePair<string, string>(id, dataTypeName));
                 }
             }
         }

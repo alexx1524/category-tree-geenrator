@@ -26,7 +26,9 @@ namespace CategoryTreeGenerator.Sources
                 new Type("property-for-sale", "Property for sale"),
                 new Type("property-for-rent", "Property for rent"),
                 new Type("apartments-for-sale", "Apartments for sale"),
-                new Type("apartments-for-rent", "Apartments for rent")
+                new Type("apartments-for-rent", "Apartments for rent"),
+                new Type("lofts-for-sale", "Loft for sale", "apartments-for-sale"),
+                new Type("lofts-for-rent", "Loft for rent", "apartments-for-rent")
             };
 
             Locations = new List<Location>
