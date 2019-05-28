@@ -242,12 +242,16 @@ namespace CategoryTreeGenerator
             }
 
             //добавление мастер данных
-            if (!_categoriesIds.CostaMasterData.Contains(l.Costa.Url))
+            if (!_categoriesIds.CostaMasterData.ContainsKey(l.Costa.Url))
             {
                 _locationMasterData.CostaId =
                     CreateProduct(l.Costa.Description, l.Costa.Url, costaId, true, alias: l.Costa.Alias);
 
-                _categoriesIds.CostaMasterData.Add(l.Costa.Url);
+                _categoriesIds.CostaMasterData.Add(l.Costa.Url, _locationMasterData.CostaId);
+            }
+            else
+            {
+                _locationMasterData.CostaId = _categoriesIds.CostaMasterData[l.Costa.Url];
             }
 
             string name = $"{parent.Description} in {l.Costa.Description}";
@@ -279,13 +283,17 @@ namespace CategoryTreeGenerator
             }
 
             //добавление мастер данных
-            if (!_categoriesIds.ProvinceMasterData.Contains(l.Province.Url))
+            if (!_categoriesIds.ProvinceMasterData.ContainsKey(l.Province.Url))
             {
                 _locationMasterData.ProvinceId =
                     CreateProduct(l.Province.Description, l.Province.Url, provinceId, true,
                         _locationMasterData.CostaId, l.Costa.Description, alias: l.Province.Alias);
 
-                _categoriesIds.ProvinceMasterData.Add(l.Province.Url);
+                _categoriesIds.ProvinceMasterData.Add(l.Province.Url, _locationMasterData.ProvinceId);
+            }
+            else
+            {
+                _locationMasterData.ProvinceId = _categoriesIds.ProvinceMasterData[l.Province.Url];
             }
 
             string name = $"{parent.Description} in {l.Province.Description} ({l.Costa.Description})";
@@ -318,13 +326,17 @@ namespace CategoryTreeGenerator
             }
 
             //добавление мастер данных
-            if (!_categoriesIds.AreaMasterData.Contains(l.Area.Url))
+            if (!_categoriesIds.AreaMasterData.ContainsKey(l.Area.Url))
             {
                 _locationMasterData.AreaId =
                     CreateProduct(l.Area.Description, l.Area.Url, areaId, true,
                         _locationMasterData.ProvinceId, l.Province.Description, l.Area.Alias);
 
-                _categoriesIds.AreaMasterData.Add(l.Area.Url);
+                _categoriesIds.AreaMasterData.Add(l.Area.Url, _locationMasterData.AreaId);
+            }
+            else
+            {
+                _locationMasterData.AreaId = _categoriesIds.AreaMasterData[l.Area.Url];
             }
 
             string name =
@@ -359,13 +371,17 @@ namespace CategoryTreeGenerator
             }
 
             //добавление мастер данных
-            if (!_categoriesIds.CityMasterData.Contains(l.City.Url))
+            if (!_categoriesIds.CityMasterData.ContainsKey(l.City.Url))
             {
                 _locationMasterData.CityId =
                     CreateProduct(l.City.Description, l.City.Url, cityId, true,
                         _locationMasterData.AreaId, l.Area.Description, l.City.Alias);
 
-                _categoriesIds.CityMasterData.Add(l.City.Url);
+                _categoriesIds.CityMasterData.Add(l.City.Url, _locationMasterData.CityId);
+            }
+            else
+            {
+                _locationMasterData.CityId = _categoriesIds.CityMasterData[l.City.Url];
             }
 
             string name = $"{parent.Description} in {l.City.Description} " +
@@ -401,12 +417,16 @@ namespace CategoryTreeGenerator
             }
 
             //добавление мастер данных
-            if (!_categoriesIds.EndLocationMasterData.Contains(l.EndLocation.Url))
+            if (!_categoriesIds.EndLocationMasterData.ContainsKey(l.EndLocation.Url))
             {
                 _locationMasterData.EndLocationId = CreateProduct(l.EndLocation.Description, l.EndLocation.Url,
                     endLocationId, true, _locationMasterData.CityId, l.City.Description, l.EndLocation.Alias);
 
-                _categoriesIds.EndLocationMasterData.Add(l.EndLocation.Url);
+                _categoriesIds.EndLocationMasterData.Add(l.EndLocation.Url, _locationMasterData.EndLocationId);
+            }
+            else
+            {
+                _locationMasterData.EndLocationId = _categoriesIds.EndLocationMasterData[l.EndLocation.Url];
             }
 
             string name = $"{parent.Description} in {l.City.Description} - {l.EndLocation.Description} " +
@@ -442,13 +462,17 @@ namespace CategoryTreeGenerator
             }
 
             //добавление мастер данных
-            if (!_categoriesIds.EndLocation2MasterData.Contains(l.EndLocation2.Url))
+            if (!_categoriesIds.EndLocation2MasterData.ContainsKey(l.EndLocation2.Url))
             {
                 _locationMasterData.EndLocation2Id = CreateProduct(l.EndLocation2.Description, l.EndLocation2.Url,
                     endLocation2Id, true, _locationMasterData.EndLocationId,
                     l.EndLocation.Description, l.EndLocation2.Alias);
 
-                _categoriesIds.EndLocation2MasterData.Add(l.EndLocation2.Url);
+                _categoriesIds.EndLocation2MasterData.Add(l.EndLocation2.Url, _locationMasterData.EndLocationId);
+            }
+            else
+            {
+                _locationMasterData.EndLocation2Id = _categoriesIds.EndLocation2MasterData[l.EndLocation2.Url];
             }
 
             string name = $"{parent.Description} in {l.City.Description} " +

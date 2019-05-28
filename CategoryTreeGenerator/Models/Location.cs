@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Security;
 
 namespace CategoryTreeGenerator.Models
 {
@@ -11,12 +12,12 @@ namespace CategoryTreeGenerator.Models
         public string EndLocationId { get; set; }
         public string EndLocation2Id { get; set; }
 
-        public List<string> CostaMasterData { get; set; } = new List<string>();
-        public List<string> ProvinceMasterData { get; set; } = new List<string>();
-        public List<string> AreaMasterData { get; set; } = new List<string>();
-        public List<string> CityMasterData { get; set; } = new List<string>();
-        public List<string> EndLocationMasterData { get; set; } = new List<string>();
-        public List<string> EndLocation2MasterData { get; set; } = new List<string>();
+        public Dictionary<string, string> CostaMasterData { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> ProvinceMasterData { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> AreaMasterData { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> CityMasterData { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> EndLocationMasterData { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> EndLocation2MasterData { get; set; } = new Dictionary<string, string>();
     }
 
     public class LocationMasterData
