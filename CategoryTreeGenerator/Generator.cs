@@ -24,7 +24,7 @@ namespace CategoryTreeGenerator
         private static LocationCategories _categoriesIds;
         private static LocationMasterData _locationMasterData;
 
-        private static readonly Dictionary<string, KeyValuePair<string, string>> _types =
+        private static readonly Dictionary<string, KeyValuePair<string, string>> Types =
             new Dictionary<string, KeyValuePair<string, string>>();
 
         public static void Build(string path, IDataSource source, IConfiguration configuration)
@@ -48,7 +48,7 @@ namespace CategoryTreeGenerator
 
             foreach (Tag tag in _dataSource.Tags)
             {
-                CreateProduct(tag.Description, tag.Url, tagsCategoryId, true);
+                CreateProduct(tag.Description, tag.Url, tagsCategoryId, true, alias: tag.Alias);
             }
 
             //генерация дерева мастер данных и посадочных страниц
@@ -102,11 +102,11 @@ namespace CategoryTreeGenerator
 
                 dataTypeUrl = type.Url.Replace("property-", "");
 
-                string id = CreateProduct(dataTypeName, dataTypeUrl, rootId, true);
+                string id = CreateProduct(dataTypeName, dataTypeUrl, rootId, true, alias: type.Alias);
 
-                if (!_types.ContainsKey(dataTypeUrl))
+                if (!Types.ContainsKey(dataTypeUrl))
                 {
-                    _types.Add(dataTypeUrl, new KeyValuePair<string, string>(id, dataTypeName));
+                    Types.Add(dataTypeUrl, new KeyValuePair<string, string>(id, dataTypeName));
                 }
             }
             // добавление мастер данных для отдельных типов без dealtype (for rent, for sale)
@@ -116,7 +116,7 @@ namespace CategoryTreeGenerator
                 dataTypeName =
                     type.Description.Substring(0, type.Description.IndexOf(" for ", StringComparison.Ordinal));
 
-                if (!_types.ContainsKey(dataTypeUrl))
+                if (!Types.ContainsKey(dataTypeUrl))
                 {
                     string id = null;
 
@@ -126,20 +126,20 @@ namespace CategoryTreeGenerator
                         string dataTypeAssUrl = type.AssociatedTypeUrl.Substring(0,
                             type.AssociatedTypeUrl.IndexOf("-for-", StringComparison.Ordinal));
 
-                        if (_types.ContainsKey(dataTypeAssUrl))
+                        if (Types.ContainsKey(dataTypeAssUrl))
                         {
                             id = CreateProduct(dataTypeName, dataTypeUrl, rootId, true,
-                                _types[dataTypeAssUrl].Key, _types[dataTypeAssUrl].Value);
+                                Types[dataTypeAssUrl].Key, Types[dataTypeAssUrl].Value, alias: type.Alias);
                         }
                     }
                     else
                     {
-                        id = CreateProduct(dataTypeName, dataTypeUrl, rootId, true);
+                        id = CreateProduct(dataTypeName, dataTypeUrl, rootId, true, alias: type.Alias);
                     }
 
                     if (!string.IsNullOrEmpty(id))
                     {
-                        _types.Add(dataTypeUrl, new KeyValuePair<string, string>(id, dataTypeName));
+                        Types.Add(dataTypeUrl, new KeyValuePair<string, string>(id, dataTypeName));
                     }
                 }
             }
@@ -213,8 +213,16 @@ namespace CategoryTreeGenerator
             (string provincePath, string provinceId) = BuildProvince(costaPath, item, l, costaCategoryId);
             (string areaPath, string areaId) = BuildArea(provincePath, item, l, provinceId);
             (string cityPath, string cityId) = BuildCity(areaPath, item, l, areaId);
-            (string endLocationPath, string endLocationId) = BuildEndLocation(cityPath, item, l, cityId);
-            (_, _) = BuildEndLocation2(endLocationPath, item, l, endLocationId);
+
+            if (l.EndLocation != null)
+            {
+                (string endLocationPath, string endLocationId) = BuildEndLocation(cityPath, item, l, cityId);
+
+                if (l.EndLocation2 != null)
+                {
+                    BuildEndLocation2(endLocationPath, item, l, endLocationId);
+                }
+            }
         }
 
         private static (string, string) BuildCosta(string path, BaseItem parent, Location l, string parentId)
@@ -237,7 +245,7 @@ namespace CategoryTreeGenerator
             if (!_categoriesIds.CostaMasterData.Contains(l.Costa.Url))
             {
                 _locationMasterData.CostaId =
-                    CreateProduct(l.Costa.Description, l.Costa.Url, costaId, true);
+                    CreateProduct(l.Costa.Description, l.Costa.Url, costaId, true, alias: l.Costa.Alias);
 
                 _categoriesIds.CostaMasterData.Add(l.Costa.Url);
             }
@@ -275,7 +283,7 @@ namespace CategoryTreeGenerator
             {
                 _locationMasterData.ProvinceId =
                     CreateProduct(l.Province.Description, l.Province.Url, provinceId, true,
-                        _locationMasterData.CostaId, l.Costa.Description);
+                        _locationMasterData.CostaId, l.Costa.Description, alias: l.Province.Alias);
 
                 _categoriesIds.ProvinceMasterData.Add(l.Province.Url);
             }
@@ -314,7 +322,7 @@ namespace CategoryTreeGenerator
             {
                 _locationMasterData.AreaId =
                     CreateProduct(l.Area.Description, l.Area.Url, areaId, true,
-                        _locationMasterData.ProvinceId, l.Province.Description);
+                        _locationMasterData.ProvinceId, l.Province.Description, l.Area.Alias);
 
                 _categoriesIds.AreaMasterData.Add(l.Area.Url);
             }
@@ -337,7 +345,7 @@ namespace CategoryTreeGenerator
 
         private static (string, string) BuildCity(string path, BaseItem parent, Location l, string provinceId)
         {
-            string cityPath = path + "\\area";
+            string cityPath = path + "\\city";
             string cityId = _categoriesIds.CityId;
 
             if (!Directory.Exists(cityPath))
@@ -355,7 +363,7 @@ namespace CategoryTreeGenerator
             {
                 _locationMasterData.CityId =
                     CreateProduct(l.City.Description, l.City.Url, cityId, true,
-                        _locationMasterData.AreaId, l.Area.Description);
+                        _locationMasterData.AreaId, l.Area.Description, l.City.Alias);
 
                 _categoriesIds.CityMasterData.Add(l.City.Url);
             }
@@ -366,7 +374,7 @@ namespace CategoryTreeGenerator
             string baseName =
                 $"{cityPath}\\{name}";
 
-            string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.Area.Url}/{l.City.Url}";
+            string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.City.Url}";
 
             File.WriteAllText(baseName + ".txt", url);
 
@@ -396,7 +404,7 @@ namespace CategoryTreeGenerator
             if (!_categoriesIds.EndLocationMasterData.Contains(l.EndLocation.Url))
             {
                 _locationMasterData.EndLocationId = CreateProduct(l.EndLocation.Description, l.EndLocation.Url,
-                    endLocationId, true, _locationMasterData.CityId, l.City.Description);
+                    endLocationId, true, _locationMasterData.CityId, l.City.Description, l.EndLocation.Alias);
 
                 _categoriesIds.EndLocationMasterData.Add(l.EndLocation.Url);
             }
@@ -407,7 +415,7 @@ namespace CategoryTreeGenerator
             string baseName =
                 $"{endLocationPath}\\{name}";
 
-            string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.Area.Url}/{l.City.Url}/{l.EndLocation.Url}";
+            string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.City.Url}/{l.EndLocation.Url}";
 
             File.WriteAllText(baseName + ".txt", url);
 
@@ -418,7 +426,7 @@ namespace CategoryTreeGenerator
             return (endLocationPath, endLocationId);
         }
 
-        private static (string, string) BuildEndLocation2(string path, BaseItem parent, Location l, string cityId)
+        private static void BuildEndLocation2(string path, BaseItem parent, Location l, string cityId)
         {
             string endLocation2Path = path + "\\end_location2";
             string endLocation2Id = _categoriesIds.EndLocation2Id;
@@ -438,7 +446,7 @@ namespace CategoryTreeGenerator
             {
                 _locationMasterData.EndLocation2Id = CreateProduct(l.EndLocation2.Description, l.EndLocation2.Url,
                     endLocation2Id, true, _locationMasterData.EndLocationId,
-                    l.EndLocation.Description);
+                    l.EndLocation.Description, l.EndLocation2.Alias);
 
                 _categoriesIds.EndLocation2MasterData.Add(l.EndLocation2.Url);
             }
@@ -451,15 +459,13 @@ namespace CategoryTreeGenerator
                 $"{endLocation2Path}\\{name}";
 
             string url =
-                $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.Area.Url}/{l.City.Url}/{l.EndLocation2.Url}-in-{l.EndLocation.Url}";
+                $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.City.Url}/{l.EndLocation2.Url}-in-{l.EndLocation.Url}";
 
             File.WriteAllText(baseName + ".txt", url);
 
             CreateProduct(name, url, endLocation2Id);
 
             AttachTags(baseName, name, url, endLocation2Id);
-
-            return (endLocation2Path, endLocation2Id);
         }
 
         private static string CreateCategory(string name, string parentId = null)
@@ -469,7 +475,7 @@ namespace CategoryTreeGenerator
 
             Console.WriteLine($"Created category [{name}]: {categoryId}, parent: {parentId}");
 
-            System.Net.Http.HttpResponseMessage result = _catalogService.CreateCategory(new Category()
+            _catalogService.CreateCategory(new Category()
             {
                 Id = categoryId,
                 ParentId = parentId,
@@ -477,13 +483,13 @@ namespace CategoryTreeGenerator
                 Name = name,
                 IsVirtual = false,
                 Code = code
-            }).Result;
+            }).Wait();
 
             return categoryId;
         }
 
         private static string CreateProduct(string name, string url, string categoryId, bool masterData = false,
-            string associationId = null, string associasionName = null)
+            string associationId = null, string associasionName = null, string alias = null)
         {
             string productId = Guid.NewGuid().ToString();
 
@@ -508,6 +514,7 @@ namespace CategoryTreeGenerator
                 Product product = _catalogService.CreateProduct(new Product
                 {
                     Id = productId,
+                    Gtin = alias,
                     Code = code,
                     CategoryId = categoryId,
                     CatalogId = _catalogId,

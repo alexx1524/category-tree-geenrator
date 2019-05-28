@@ -8,7 +8,8 @@ namespace CategoryTreeGenerator.Models
         {
         }
 
-        public Type(string url, string description, string associatedTypeUrl = null) : base(url, description)
+        public Type(string url, string description, string alias, string associatedTypeUrl = null) :
+            base(url, description, alias)
         {
             AssociatedTypeUrl = associatedTypeUrl;
         }

@@ -37,7 +37,7 @@ namespace CategoryTreeGenerator.Models
         {
         }
 
-        public LocationDetails(string url, string description) : base(url, description)
+        public LocationDetails(string url, string description, string alias) : base(url, description, alias)
         {
         }
 
