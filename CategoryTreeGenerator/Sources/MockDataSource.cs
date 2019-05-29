@@ -47,7 +47,7 @@ namespace CategoryTreeGenerator.Sources
                     Costa = new LocationDetails("costa-blanca", "Costa Blanca", "Коста Бланка"),
                     Province = new LocationDetails("alicante", "Alicante province", "Аликанте"),
                     Area = new LocationDetails("marina-alta", "Marina Alta", "Марина-Альта"),
-                    City = new LocationDetails("benissa", "Banissa", "Бенисса"),
+                    City = new LocationDetails("benissa", "Benissa", "Бенисса"),
                     EndLocation = new LocationDetails("cala-advocat-baladrar", "Cala Advocat - Baladrar","Кала Адвокат - Баладар"),
                     EndLocation2 = null
                 }
