@@ -1,7 +1,7 @@
-﻿using CategoryTreeGenerator.Sources;
-using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using System.IO;
+using CategoryTreeGenerator.Sources;
+using Microsoft.Extensions.Configuration;
 
 namespace CategoryTreeGenerator
 {
@@ -19,7 +19,17 @@ namespace CategoryTreeGenerator
 
             Console.WriteLine("Started");
 
-            IDataSource source = new MockDataSource();
+            IDataSource source;
+            var dataSource = configuration.GetSection("DataSource:Source").Value;
+
+            if (dataSource == "excel")
+            {
+                source = new ExcelDataSource(configuration);
+            }
+            else
+            {
+                source = new MockDataSource();
+            }
 
             //очистка папки генерации
             Clean();
