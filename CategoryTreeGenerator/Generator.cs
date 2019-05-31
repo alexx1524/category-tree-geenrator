@@ -48,7 +48,33 @@ namespace CategoryTreeGenerator
 
             foreach (Tag tag in _dataSource.Tags)
             {
-                CreateProduct(tag.Description, tag.Url, tagsCategoryId, true, alias: tag.Alias);
+                List<Property> properties = new List<Property>();
+
+                //добавление свойства is_condition, если это условный тег
+                if (tag.IsCondition)
+                {
+                    properties.Add(new Property
+                    {
+                        CatalogId = _catalogId,
+                        Name = "is_condition",
+                        Dictionary = false,
+                        IsNew = true,
+                        Multilanguage = false,
+                        ValueType = "Boolean",
+                        Values = new List<PropertyValue>
+                        {
+                            new PropertyValue
+                            {
+                                PropertyName = "is_condition",
+                                Value = true,
+                                ValueType = "Boolean"
+                            }
+                        }
+                    });
+                }
+
+                CreateProduct(tag.Description, tag.Url, tagsCategoryId, true, alias: tag.Alias,
+                    properties: properties);
             }
 
             //генерация дерева мастер данных и посадочных страниц
@@ -513,7 +539,8 @@ namespace CategoryTreeGenerator
         }
 
         private static string CreateProduct(string name, string url, string categoryId, bool masterData = false,
-            string associationId = null, string associasionName = null, string alias = null)
+            string associationId = null, string associasionName = null, string alias = null,
+            List<Property> properties = null)
         {
             string productId = Guid.NewGuid().ToString();
 
@@ -545,7 +572,7 @@ namespace CategoryTreeGenerator
                     Name = name,
                     IsActive = true,
                     ProductType = "Physical",
-                    Properties = new List<Property>(),
+                    Properties = properties ?? new List<Property>(),
                     Associations = associations,
                     SeoInfos = new List<SeoInfo>
                     {
@@ -556,7 +583,7 @@ namespace CategoryTreeGenerator
                             SemanticUrl = url,
                             IsActive = true,
                         }
-                    },
+                    }
                 }).Result;
 
                 Console.WriteLine($"Created product [{name}]: {product.Id}, category: {categoryId}");

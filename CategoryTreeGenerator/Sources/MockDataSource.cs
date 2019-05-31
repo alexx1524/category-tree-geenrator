@@ -19,6 +19,8 @@ namespace CategoryTreeGenerator.Sources
                 new Tag( "in-the-mountains", "in the mountains", "В горах"),
                 new Tag("with-swimming-pool", "with pool", "С бассейном"),
                 new Tag("with-seaview", "seaview", "С видом на море"),
+                new Tag("resale", "resale", "Вторичная недвижимость", true),
+                new Tag("newly-built", "newly built", "Новостройка", true)
             };
 
             Types = new List<Type>
