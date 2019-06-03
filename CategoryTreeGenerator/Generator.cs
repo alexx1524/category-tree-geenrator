@@ -1,13 +1,13 @@
-﻿using CategoryTreeGenerator.Models;
-using CategoryTreeGenerator.Services;
-using CategoryTreeGenerator.Sources;
-using CategoryTreeGenerator.Tools;
-using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using CategoryTreeGenerator.Models;
+using CategoryTreeGenerator.Services;
+using CategoryTreeGenerator.Sources;
+using CategoryTreeGenerator.Tools;
+using Microsoft.Extensions.Configuration;
 using VirtoCommerce.Storefront.AutoRestClients.CatalogModuleApi.Models;
 using Type = CategoryTreeGenerator.Models.Type;
 
@@ -72,6 +72,25 @@ namespace CategoryTreeGenerator
                         }
                     });
                 }
+
+                properties.Add(new Property
+                {
+                    CatalogId = _catalogId,
+                    Name = "group_number",
+                    Dictionary = false,
+                    IsNew = true,
+                    Multilanguage = false,
+                    ValueType = "Number",
+                    Values = new List<PropertyValue>
+                    {
+                        new PropertyValue
+                        {
+                            PropertyName = "group_number",
+                            Value = tag.GroupNumber,
+                            ValueType = "Number"
+                        }
+                    }
+                });
 
                 CreateProduct(tag.Description, tag.Url, tagsCategoryId, true, alias: tag.Alias,
                     properties: properties);
