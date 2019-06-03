@@ -1,5 +1,5 @@
-using CategoryTreeGenerator.Models;
 using System.Collections.Generic;
+using CategoryTreeGenerator.Models;
 
 namespace CategoryTreeGenerator.Sources
 {
@@ -15,12 +15,12 @@ namespace CategoryTreeGenerator.Sources
         {
             Tags = new List<Tag>
             {
-                new Tag("coastal", "coastal", "На море"),
-                new Tag( "in-the-mountains", "in the mountains", "В горах"),
-                new Tag("with-swimming-pool", "with pool", "С бассейном"),
-                new Tag("with-seaview", "seaview", "С видом на море"),
-                new Tag("resale", "resale", "Вторичная недвижимость", true),
-                new Tag("newly-built", "newly built", "Новостройка", true)
+                new Tag("coastal", "coastal", "На море", false, 1),
+                new Tag("cheap", "cheap property", "Дешёвая", false, 1),
+                new Tag("with-swimming-pool", "with pool", "С бассейном", false, 2),
+                new Tag("marine", "marine", "Недвижимость на море", false, 2),
+                new Tag("by-owner", "by owner", "От владельца", true, 3),
+                new Tag("from-developer", "from developer", "От застройщика", true, 3)
             };
 
             Types = new List<Type>
