@@ -80,14 +80,14 @@ namespace CategoryTreeGenerator
                     Dictionary = false,
                     IsNew = true,
                     Multilanguage = false,
-                    ValueType = "Number",
+                    ValueType = "Integer",
                     Values = new List<PropertyValue>
                     {
                         new PropertyValue
                         {
                             PropertyName = "group_number",
                             Value = tag.GroupNumber,
-                            ValueType = "Number"
+                            ValueType = "Integer"
                         }
                     }
                 });
