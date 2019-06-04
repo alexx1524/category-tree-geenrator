@@ -293,21 +293,21 @@ namespace CategoryTreeGenerator
                     CreateProduct(l.Costa.Description, l.Costa.Url, costaId, true, alias: l.Costa.Alias);
 
                 _categoriesIds.CostaMasterData.Add(l.Costa.Url, _locationMasterData.CostaId);
+                
+                string name = $"{parent.Description} in {l.Costa.Description}";
+                string basePath = $"{costaPath}\\{name}";
+                string url = $"{parent.Url}/{l.Costa.Url}";
+
+                File.WriteAllText(basePath + ".txt", url);
+
+                CreateProduct(name, url, costaId);
+
+                AttachTags(basePath, name, url, costaId);
             }
             else
             {
                 _locationMasterData.CostaId = _categoriesIds.CostaMasterData[l.Costa.Url];
             }
-
-            string name = $"{parent.Description} in {l.Costa.Description}";
-            string basePath = $"{costaPath}\\{name}";
-            string url = $"{parent.Url}/{l.Costa.Url}";
-
-            File.WriteAllText(basePath + ".txt", url);
-
-            CreateProduct(name, url, costaId);
-
-            AttachTags(basePath, name, url, costaId);
 
             return (costaPath, costaId);
         }
@@ -335,22 +335,22 @@ namespace CategoryTreeGenerator
                         _locationMasterData.CostaId, l.Costa.Description, alias: l.Province.Alias);
 
                 _categoriesIds.ProvinceMasterData.Add(l.Province.Url, _locationMasterData.ProvinceId);
+                
+                string name = $"{parent.Description} in {l.Province.Description} ({l.Costa.Description})";
+                string baseName =
+                    $"{provincePath}\\{name})";
+                string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}";
+
+                File.WriteAllText(baseName + ".txt", url);
+
+                CreateProduct(name, url, provinceId);
+
+                AttachTags(baseName, name, url, provinceId);
             }
             else
             {
                 _locationMasterData.ProvinceId = _categoriesIds.ProvinceMasterData[l.Province.Url];
             }
-
-            string name = $"{parent.Description} in {l.Province.Description} ({l.Costa.Description})";
-            string baseName =
-                $"{provincePath}\\{name})";
-            string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}";
-
-            File.WriteAllText(baseName + ".txt", url);
-
-            CreateProduct(name, url, provinceId);
-
-            AttachTags(baseName, name, url, provinceId);
 
             return (provincePath, provinceId);
         }
@@ -370,7 +370,7 @@ namespace CategoryTreeGenerator
                 areaId = _categoriesIds.AreaId = CreateCategory("area", provinceId);
             }
 
-            //добавление мастер данных
+            //добавление мастер данных и посадочных страниц
             if (!_categoriesIds.AreaMasterData.ContainsKey(l.Area.Url))
             {
                 _locationMasterData.AreaId =
@@ -378,24 +378,24 @@ namespace CategoryTreeGenerator
                         _locationMasterData.ProvinceId, l.Province.Description, l.Area.Alias);
 
                 _categoriesIds.AreaMasterData.Add(l.Area.Url, _locationMasterData.AreaId);
+
+                string name =
+                    $"{parent.Description} in {l.Area.Description} ({l.Costa.Description}, {l.Province.Description})";
+                string baseName =
+                    $"{areaPath}\\{name}";
+
+                string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.Area.Url}";
+
+                File.WriteAllText(baseName + ".txt", url);
+
+                CreateProduct(name, url, areaId);
+
+                AttachTags(baseName, name, url, areaId);
             }
             else
             {
                 _locationMasterData.AreaId = _categoriesIds.AreaMasterData[l.Area.Url];
             }
-
-            string name =
-                $"{parent.Description} in {l.Area.Description} ({l.Costa.Description}, {l.Province.Description})";
-            string baseName =
-                $"{areaPath}\\{name}";
-
-            string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.Area.Url}";
-
-            File.WriteAllText(baseName + ".txt", url);
-
-            CreateProduct(name, url, areaId);
-
-            AttachTags(baseName, name, url, areaId);
 
             return (areaPath, areaId);
         }
@@ -423,25 +423,25 @@ namespace CategoryTreeGenerator
                         _locationMasterData.AreaId, l.Area.Description, l.City.Alias);
 
                 _categoriesIds.CityMasterData.Add(l.City.Url, _locationMasterData.CityId);
+                
+                string name = $"{parent.Description} in {l.City.Description} " +
+                              $"({l.Costa.Description}, {l.Province.Description}, {l.Area.Description})";
+
+                string baseName =
+                    $"{cityPath}\\{name}";
+
+                string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.City.Url}";
+
+                File.WriteAllText(baseName + ".txt", url);
+
+                CreateProduct(name, url, cityId);
+
+                AttachTags(baseName, name, url, cityId);
             }
             else
             {
                 _locationMasterData.CityId = _categoriesIds.CityMasterData[l.City.Url];
             }
-
-            string name = $"{parent.Description} in {l.City.Description} " +
-                          $"({l.Costa.Description}, {l.Province.Description}, {l.Area.Description})";
-
-            string baseName =
-                $"{cityPath}\\{name}";
-
-            string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.City.Url}";
-
-            File.WriteAllText(baseName + ".txt", url);
-
-            CreateProduct(name, url, cityId);
-
-            AttachTags(baseName, name, url, cityId);
 
             return (cityPath, cityId);
         }
@@ -468,25 +468,25 @@ namespace CategoryTreeGenerator
                     endLocationId, true, _locationMasterData.CityId, l.City.Description, l.EndLocation.Alias);
 
                 _categoriesIds.EndLocationMasterData.Add(l.EndLocation.Url, _locationMasterData.EndLocationId);
+                
+                string name = $"{parent.Description} in {l.City.Description} - {l.EndLocation.Description} " +
+                              $"({l.Costa.Description}, {l.Province.Description}, {l.Area.Description})";
+
+                string baseName =
+                    $"{endLocationPath}\\{name}";
+
+                string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.City.Url}/{l.EndLocation.Url}";
+
+                File.WriteAllText(baseName + ".txt", url);
+
+                CreateProduct(name, url, endLocationId);
+
+                AttachTags(baseName, name, url, endLocationId);
             }
             else
             {
                 _locationMasterData.EndLocationId = _categoriesIds.EndLocationMasterData[l.EndLocation.Url];
             }
-
-            string name = $"{parent.Description} in {l.City.Description} - {l.EndLocation.Description} " +
-                          $"({l.Costa.Description}, {l.Province.Description}, {l.Area.Description})";
-
-            string baseName =
-                $"{endLocationPath}\\{name}";
-
-            string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.City.Url}/{l.EndLocation.Url}";
-
-            File.WriteAllText(baseName + ".txt", url);
-
-            CreateProduct(name, url, endLocationId);
-
-            AttachTags(baseName, name, url, endLocationId);
 
             return (endLocationPath, endLocationId);
         }
@@ -514,27 +514,27 @@ namespace CategoryTreeGenerator
                     l.EndLocation.Description, l.EndLocation2.Alias);
 
                 _categoriesIds.EndLocation2MasterData.Add(l.EndLocation2.Url, _locationMasterData.EndLocationId);
+                
+                string name = $"{parent.Description} in {l.City.Description} " +
+                              $"- {l.EndLocation2.Description} in {l.EndLocation.Description} " +
+                              $"({l.Costa.Description}, {l.Province.Description}, {l.Area.Description})";
+
+                string baseName =
+                    $"{endLocation2Path}\\{name}";
+
+                string url =
+                    $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.City.Url}/{l.EndLocation2.Url}-in-{l.EndLocation.Url}";
+
+                File.WriteAllText(baseName + ".txt", url);
+
+                CreateProduct(name, url, endLocation2Id);
+
+                AttachTags(baseName, name, url, endLocation2Id);
             }
             else
             {
                 _locationMasterData.EndLocation2Id = _categoriesIds.EndLocation2MasterData[l.EndLocation2.Url];
-            }
-
-            string name = $"{parent.Description} in {l.City.Description} " +
-                          $"- {l.EndLocation2.Description} in {l.EndLocation.Description} " +
-                          $"({l.Costa.Description}, {l.Province.Description}, {l.Area.Description})";
-
-            string baseName =
-                $"{endLocation2Path}\\{name}";
-
-            string url =
-                $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.City.Url}/{l.EndLocation2.Url}-in-{l.EndLocation.Url}";
-
-            File.WriteAllText(baseName + ".txt", url);
-
-            CreateProduct(name, url, endLocation2Id);
-
-            AttachTags(baseName, name, url, endLocation2Id);
+            } 
         }
 
         private static string CreateCategory(string name, string parentId = null)
