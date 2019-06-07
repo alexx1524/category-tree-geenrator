@@ -187,6 +187,13 @@ namespace CategoryTreeGenerator
                         Types.Add(dataTypeUrl, new KeyValuePair<string, string>(id, dataTypeName));
                     }
                 }
+                
+                if (!createdData.Contains(type.Url))
+                {
+                    CreateProduct(type.Description, type.Url, rootId);
+
+                    createdData.Add(type.Url);
+                }
             }
         }
 
