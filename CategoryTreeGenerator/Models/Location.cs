@@ -5,14 +5,14 @@ namespace CategoryTreeGenerator.Models
 {
     public class LocationCategories
     {
-        public string CostaId { get; set; }
+        public string CoastId { get; set; }
         public string ProvinceId { get; set; }
         public string AreaId { get; set; }
         public string CityId { get; set; }
         public string EndLocationId { get; set; }
         public string EndLocation2Id { get; set; }
 
-        public Dictionary<string, string> CostaMasterData { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> CoastMasterData { get; set; } = new Dictionary<string, string>();
         public Dictionary<string, string> ProvinceMasterData { get; set; } = new Dictionary<string, string>();
         public Dictionary<string, string> AreaMasterData { get; set; } = new Dictionary<string, string>();
         public Dictionary<string, string> CityMasterData { get; set; } = new Dictionary<string, string>();
@@ -22,7 +22,7 @@ namespace CategoryTreeGenerator.Models
 
     public class LocationMasterData
     {
-        public string CostaId { get; set; }
+        public string CoastId { get; set; }
         public string ProvinceId { get; set; }
         public string AreaId { get; set; }
         public string CityId { get; set; }
@@ -51,7 +51,7 @@ namespace CategoryTreeGenerator.Models
 
     public class Location
     {
-        public LocationDetails Costa { get; set; }
+        public LocationDetails Coast { get; set; }
         public LocationDetails Province { get; set; }
         public LocationDetails Area { get; set; }
         public LocationDetails City { get; set; }
@@ -62,9 +62,9 @@ namespace CategoryTreeGenerator.Models
         {
         }
 
-        public Location(BaseItem costa, BaseItem province, BaseItem area, BaseItem city, BaseItem endLocation, BaseItem endLocation2)
+        public Location(BaseItem coast, BaseItem province, BaseItem area, BaseItem city, BaseItem endLocation, BaseItem endLocation2)
         {
-            Costa = new LocationDetails(costa);
+            Coast = new LocationDetails(coast);
             Province = new LocationDetails(province);
             Area = new LocationDetails(area);
             City = new LocationDetails(city);

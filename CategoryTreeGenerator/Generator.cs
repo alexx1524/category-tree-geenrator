@@ -262,8 +262,8 @@ namespace CategoryTreeGenerator
         {
             _locationMasterData = new LocationMasterData();
 
-            (string costaPath, string costaCategoryId) = BuildCosta(path, item, l, parentId);
-            (string provincePath, string provinceId) = BuildProvince(costaPath, item, l, costaCategoryId);
+            (string coastPath, string coastCategoryId) = BuildCoast(path, item, l, parentId);
+            (string provincePath, string provinceId) = BuildProvince(coastPath, item, l, coastCategoryId);
             (string areaPath, string areaId) = BuildArea(provincePath, item, l, provinceId);
             (string cityPath, string cityId) = BuildCity(areaPath, item, l, areaId);
 
@@ -278,52 +278,52 @@ namespace CategoryTreeGenerator
             }
         }
 
-        private static (string, string) BuildCosta(string path, BaseItem parent, Location l, string parentId)
+        private static (string, string) BuildCoast(string path, BaseItem parent, Location l, string parentId)
         {
-            string costaPath = path + "\\costa";
-            string costaId = _categoriesIds.CostaId;
+            string coastPath = path + "\\coast";
+            string coastId = _categoriesIds.CoastId;
 
-            if (!Directory.Exists(costaPath))
+            if (!Directory.Exists(coastPath))
             {
-                Directory.CreateDirectory(costaPath);
+                Directory.CreateDirectory(coastPath);
             }
 
             //добавление вложенной папки
-            if (string.IsNullOrEmpty(costaId))
+            if (string.IsNullOrEmpty(coastId))
             {
-                costaId = _categoriesIds.CostaId = CreateCategory("costa", parentId);
+                coastId = _categoriesIds.CoastId = CreateCategory("coast", parentId);
             }
 
             //добавление мастер данных
-            if (!_categoriesIds.CostaMasterData.ContainsKey(l.Costa.Url))
+            if (!_categoriesIds.CoastMasterData.ContainsKey(l.Coast.Url))
             {
-                _locationMasterData.CostaId =
-                    CreateProduct(l.Costa.Description, l.Costa.Url, costaId, true, alias: l.Costa.Alias);
+                _locationMasterData.CoastId =
+                    CreateProduct(l.Coast.Description, l.Coast.Url, coastId, true, alias: l.Coast.Alias);
 
-                _categoriesIds.CostaMasterData.Add(l.Costa.Url, _locationMasterData.CostaId);
+                _categoriesIds.CoastMasterData.Add(l.Coast.Url, _locationMasterData.CoastId);
             }
 
-            _locationMasterData.CostaId = _categoriesIds.CostaMasterData[l.Costa.Url];
+            _locationMasterData.CoastId = _categoriesIds.CoastMasterData[l.Coast.Url];
 
-            string name = $"{parent.Description} in {l.Costa.Description}";
-            string basePath = $"{costaPath}\\{name}";
-            string url = $"{parent.Url}/{l.Costa.Url}";
+            string name = $"{parent.Description} in {l.Coast.Description}";
+            string basePath = $"{coastPath}\\{name}";
+            string url = $"{parent.Url}/{l.Coast.Url}";
 
             if (!_landingUrls.Contains(url))
             {
                 File.WriteAllText(basePath + ".txt", url);
 
-                CreateProduct(name, url, costaId);
+                CreateProduct(name, url, coastId);
 
-                AttachTags(basePath, name, url, costaId);
+                AttachTags(basePath, name, url, coastId);
 
                 _landingUrls.Add(url);
             }
 
-            return (costaPath, costaId);
+            return (coastPath, coastId);
         }
 
-        private static (string, string) BuildProvince(string path, BaseItem parent, Location l, string costaId)
+        private static (string, string) BuildProvince(string path, BaseItem parent, Location l, string coastId)
         {
             string provincePath = path + "\\province";
             string provinceId = _categoriesIds.ProvinceId;
@@ -335,7 +335,7 @@ namespace CategoryTreeGenerator
 
             if (string.IsNullOrEmpty(provinceId))
             {
-                provinceId = _categoriesIds.ProvinceId = CreateCategory("province", costaId);
+                provinceId = _categoriesIds.ProvinceId = CreateCategory("province", coastId);
             }
 
             //добавление мастер данных
@@ -343,17 +343,17 @@ namespace CategoryTreeGenerator
             {
                 _locationMasterData.ProvinceId =
                     CreateProduct(l.Province.Description, l.Province.Url, provinceId, true,
-                        _locationMasterData.CostaId, l.Costa.Description, alias: l.Province.Alias);
+                        _locationMasterData.CoastId, l.Coast.Description, alias: l.Province.Alias);
 
                 _categoriesIds.ProvinceMasterData.Add(l.Province.Url, _locationMasterData.ProvinceId);
             }
 
             _locationMasterData.ProvinceId = _categoriesIds.ProvinceMasterData[l.Province.Url];
 
-            string name = $"{parent.Description} in {l.Province.Description} ({l.Costa.Description})";
+            string name = $"{parent.Description} in {l.Province.Description} ({l.Coast.Description})";
             string baseName =
                 $"{provincePath}\\{name})";
-            string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}";
+            string url = $"{parent.Url}/{l.Coast.Url}/{l.Province.Url}";
 
             if (!_landingUrls.Contains(url))
             {
@@ -397,11 +397,11 @@ namespace CategoryTreeGenerator
             _locationMasterData.AreaId = _categoriesIds.AreaMasterData[l.Area.Url];
 
             string name =
-                $"{parent.Description} in {l.Area.Description} ({l.Costa.Description}, {l.Province.Description})";
+                $"{parent.Description} in {l.Area.Description} ({l.Coast.Description}, {l.Province.Description})";
             string baseName =
                 $"{areaPath}\\{name}";
 
-            string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.Area.Url}";
+            string url = $"{parent.Url}/{l.Coast.Url}/{l.Province.Url}/{l.Area.Url}";
 
             if (!_landingUrls.Contains(url))
             {
@@ -445,12 +445,12 @@ namespace CategoryTreeGenerator
             _locationMasterData.CityId = _categoriesIds.CityMasterData[l.City.Url];
 
             string name = $"{parent.Description} in {l.City.Description} " +
-                          $"({l.Costa.Description}, {l.Province.Description}, {l.Area.Description})";
+                          $"({l.Coast.Description}, {l.Province.Description}, {l.Area.Description})";
 
             string baseName =
                 $"{cityPath}\\{name}";
 
-            string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.City.Url}";
+            string url = $"{parent.Url}/{l.Coast.Url}/{l.Province.Url}/{l.City.Url}";
 
             if (!_landingUrls.Contains(url))
             {
@@ -494,12 +494,12 @@ namespace CategoryTreeGenerator
 
 
             string name = $"{parent.Description} in {l.City.Description} - {l.EndLocation.Description} " +
-                          $"({l.Costa.Description}, {l.Province.Description}, {l.Area.Description})";
+                          $"({l.Coast.Description}, {l.Province.Description}, {l.Area.Description})";
 
             string baseName =
                 $"{endLocationPath}\\{name}";
 
-            string url = $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.City.Url}/{l.EndLocation.Url}";
+            string url = $"{parent.Url}/{l.Coast.Url}/{l.Province.Url}/{l.City.Url}/{l.EndLocation.Url}";
 
             if (!_landingUrls.Contains(url))
             {
@@ -544,13 +544,13 @@ namespace CategoryTreeGenerator
 
             string name = $"{parent.Description} in {l.City.Description} " +
                           $"- {l.EndLocation2.Description} in {l.EndLocation.Description} " +
-                          $"({l.Costa.Description}, {l.Province.Description}, {l.Area.Description})";
+                          $"({l.Coast.Description}, {l.Province.Description}, {l.Area.Description})";
 
             string baseName =
                 $"{endLocation2Path}\\{name}";
 
             string url =
-                $"{parent.Url}/{l.Costa.Url}/{l.Province.Url}/{l.City.Url}/{l.EndLocation2.Url}-in-{l.EndLocation.Url}";
+                $"{parent.Url}/{l.Coast.Url}/{l.Province.Url}/{l.City.Url}/{l.EndLocation2.Url}-in-{l.EndLocation.Url}";
 
             if (!_landingUrls.Contains(url))
             {
