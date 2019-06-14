@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using CategoryTreeGenerator.Models;
 using CategoryTreeGenerator.Services;
@@ -97,9 +96,6 @@ namespace CategoryTreeGenerator
                     properties: properties);
             }
 
-            //генерация дерева мастер данных и посадочных страниц
-            Directory.CreateDirectory(path);
-
             string rootId = CreateCategory(path);
 
             _categoriesIds = new LocationCategories();
@@ -108,8 +104,6 @@ namespace CategoryTreeGenerator
 
             foreach (Type type in types)
             {
-                File.WriteAllText($"{path}\\{type.Description}.txt", type.Url);
-
                 AddTypeMasterData(type, rootId, typesMasterData);
 
                 BuildTags(path, type, rootId);
@@ -207,8 +201,6 @@ namespace CategoryTreeGenerator
                 string name = $"{item.Description} {tag.Description}";
                 string url = $"{item.Url}/{tag.Url}";
 
-                File.WriteAllText($"{path}\\{name}.txt", url);
-
                 CreateProduct(name, url, rootId);
             }
 
@@ -221,8 +213,6 @@ namespace CategoryTreeGenerator
                 string name = $"{item.Description} {items.First().Description} {items.Last().Description}";
                 string fileName = $"{path}\\{name}.txt";
                 string url = $"{item.Url}/{items.First().Url}-and-{items.Last().Url}";
-
-                File.WriteAllText(fileName, url);
 
                 CreateProduct(name, url, rootId);
             }
@@ -238,8 +228,6 @@ namespace CategoryTreeGenerator
                 string name = $"{nameWithoutExtension} {tag.Description}";
                 string url = $"{parentUrl}/{tag.Url}";
 
-                File.WriteAllText($"{basePath} {name}.txt", url);
-
                 CreateProduct(name, url, categoryId);
             }
 
@@ -251,8 +239,6 @@ namespace CategoryTreeGenerator
 
                 string name = $"{nameWithoutExtension} {items.First().Description} {items.Last().Description}";
                 string url = $"{parentUrl}/{items.First().Url}-and-{items.Last().Url}";
-
-                File.WriteAllText($"{basePath} {name}.txt", url);
 
                 CreateProduct(name, url, categoryId);
             }
@@ -282,12 +268,7 @@ namespace CategoryTreeGenerator
         {
             string coastPath = path + "\\coast";
             string coastId = _categoriesIds.CoastId;
-
-            if (!Directory.Exists(coastPath))
-            {
-                Directory.CreateDirectory(coastPath);
-            }
-
+            
             //добавление вложенной папки
             if (string.IsNullOrEmpty(coastId))
             {
@@ -311,8 +292,6 @@ namespace CategoryTreeGenerator
 
             if (!_landingUrls.Contains(url))
             {
-                File.WriteAllText(basePath + ".txt", url);
-
                 CreateProduct(name, url, coastId);
 
                 AttachTags(basePath, name, url, coastId);
@@ -327,11 +306,6 @@ namespace CategoryTreeGenerator
         {
             string provincePath = path + "\\province";
             string provinceId = _categoriesIds.ProvinceId;
-
-            if (!Directory.Exists(provincePath))
-            {
-                Directory.CreateDirectory(provincePath);
-            }
 
             if (string.IsNullOrEmpty(provinceId))
             {
@@ -357,8 +331,6 @@ namespace CategoryTreeGenerator
 
             if (!_landingUrls.Contains(url))
             {
-                File.WriteAllText(baseName + ".txt", url);
-
                 CreateProduct(name, url, provinceId);
 
                 AttachTags(baseName, name, url, provinceId);
@@ -373,11 +345,6 @@ namespace CategoryTreeGenerator
         {
             string areaPath = path + "\\area";
             string areaId = _categoriesIds.AreaId;
-
-            if (!Directory.Exists(areaPath))
-            {
-                Directory.CreateDirectory(areaPath);
-            }
 
             if (string.IsNullOrEmpty(areaId))
             {
@@ -405,8 +372,6 @@ namespace CategoryTreeGenerator
 
             if (!_landingUrls.Contains(url))
             {
-                File.WriteAllText(baseName + ".txt", url);
-
                 CreateProduct(name, url, areaId);
 
                 AttachTags(baseName, name, url, areaId);
@@ -421,11 +386,6 @@ namespace CategoryTreeGenerator
         {
             string cityPath = path + "\\city";
             string cityId = _categoriesIds.CityId;
-
-            if (!Directory.Exists(cityPath))
-            {
-                Directory.CreateDirectory(cityPath);
-            }
 
             if (string.IsNullOrEmpty(cityId))
             {
@@ -454,8 +414,6 @@ namespace CategoryTreeGenerator
 
             if (!_landingUrls.Contains(url))
             {
-                File.WriteAllText(baseName + ".txt", url);
-
                 CreateProduct(name, url, cityId);
 
                 AttachTags(baseName, name, url, cityId);
@@ -470,11 +428,6 @@ namespace CategoryTreeGenerator
         {
             string endLocationPath = path + "\\end_location";
             string endLocationId = _categoriesIds.EndLocationId;
-
-            if (!Directory.Exists(endLocationPath))
-            {
-                Directory.CreateDirectory(endLocationPath);
-            }
 
             if (string.IsNullOrEmpty(endLocationId))
             {
@@ -503,8 +456,6 @@ namespace CategoryTreeGenerator
 
             if (!_landingUrls.Contains(url))
             {
-                File.WriteAllText(baseName + ".txt", url);
-
                 CreateProduct(name, url, endLocationId);
 
                 AttachTags(baseName, name, url, endLocationId);
@@ -519,11 +470,6 @@ namespace CategoryTreeGenerator
         {
             string endLocation2Path = path + "\\end_location2";
             string endLocation2Id = _categoriesIds.EndLocation2Id;
-
-            if (!Directory.Exists(endLocation2Path))
-            {
-                Directory.CreateDirectory(endLocation2Path);
-            }
 
             if (string.IsNullOrEmpty(endLocation2Id))
             {
@@ -554,8 +500,6 @@ namespace CategoryTreeGenerator
 
             if (!_landingUrls.Contains(url))
             {
-                File.WriteAllText(baseName + ".txt", url);
-
                 CreateProduct(name, url, endLocation2Id);
 
                 AttachTags(baseName, name, url, endLocation2Id);
