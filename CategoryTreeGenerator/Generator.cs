@@ -106,7 +106,7 @@ namespace CategoryTreeGenerator
             {
                 AddTypeMasterData(type, rootId, typesMasterData);
 
-                BuildTags(path, type, rootId);
+                BuildTags(type, rootId);
 
                 foreach (Location location in source.Locations)
                 {
@@ -192,7 +192,7 @@ namespace CategoryTreeGenerator
             }
         }
 
-        private static void BuildTags(string path, BaseItem item, string rootId)
+        private static void BuildTags(BaseItem item, string rootId)
         {
             List<Tag> tags = _dataSource.Tags.ToList();
 
@@ -211,15 +211,13 @@ namespace CategoryTreeGenerator
                 List<Tag> items = pair.ToList();
 
                 string name = $"{item.Description} {items.First().Description} {items.Last().Description}";
-                string fileName = $"{path}\\{name}.txt";
                 string url = $"{item.Url}/{items.First().Url}-and-{items.Last().Url}";
 
                 CreateProduct(name, url, rootId);
             }
         }
 
-        private static void AttachTags(string basePath, string nameWithoutExtension, string parentUrl,
-            string categoryId)
+        private static void AttachTags(string nameWithoutExtension, string parentUrl, string categoryId)
         {
             List<Tag> tags = _dataSource.Tags.ToList();
 
@@ -259,7 +257,7 @@ namespace CategoryTreeGenerator
 
                 if (l.EndLocation2 != null)
                 {
-                    BuildEndLocation2(endLocationPath, item, l, endLocationId);
+                    BuildEndLocation2(item, l, endLocationId);
                 }
             }
         }
@@ -287,14 +285,14 @@ namespace CategoryTreeGenerator
             _locationMasterData.CoastId = _categoriesIds.CoastMasterData[l.Coast.Url];
 
             string name = $"{parent.Description} in {l.Coast.Description}";
-            string basePath = $"{coastPath}\\{name}";
+
             string url = $"{parent.Url}/{l.Coast.Url}";
 
             if (!_landingUrls.Contains(url))
             {
                 CreateProduct(name, url, coastId);
 
-                AttachTags(basePath, name, url, coastId);
+                AttachTags(name, url, coastId);
 
                 _landingUrls.Add(url);
             }
@@ -325,15 +323,13 @@ namespace CategoryTreeGenerator
             _locationMasterData.ProvinceId = _categoriesIds.ProvinceMasterData[l.Province.Url];
 
             string name = $"{parent.Description} in {l.Province.Description} ({l.Coast.Description})";
-            string baseName =
-                $"{provincePath}\\{name})";
             string url = $"{parent.Url}/{l.Coast.Url}/{l.Province.Url}";
 
             if (!_landingUrls.Contains(url))
             {
                 CreateProduct(name, url, provinceId);
 
-                AttachTags(baseName, name, url, provinceId);
+                AttachTags(name, url, provinceId);
 
                 _landingUrls.Add(url);
             }
@@ -365,16 +361,14 @@ namespace CategoryTreeGenerator
 
             string name =
                 $"{parent.Description} in {l.Area.Description} ({l.Coast.Description}, {l.Province.Description})";
-            string baseName =
-                $"{areaPath}\\{name}";
-
+            
             string url = $"{parent.Url}/{l.Coast.Url}/{l.Province.Url}/{l.Area.Url}";
 
             if (!_landingUrls.Contains(url))
             {
                 CreateProduct(name, url, areaId);
 
-                AttachTags(baseName, name, url, areaId);
+                AttachTags(name, url, areaId);
 
                 _landingUrls.Add(url);
             }
@@ -407,16 +401,13 @@ namespace CategoryTreeGenerator
             string name = $"{parent.Description} in {l.City.Description} " +
                           $"({l.Coast.Description}, {l.Province.Description}, {l.Area.Description})";
 
-            string baseName =
-                $"{cityPath}\\{name}";
-
             string url = $"{parent.Url}/{l.Coast.Url}/{l.Province.Url}/{l.City.Url}";
 
             if (!_landingUrls.Contains(url))
             {
                 CreateProduct(name, url, cityId);
 
-                AttachTags(baseName, name, url, cityId);
+                AttachTags(name, url, cityId);
 
                 _landingUrls.Add(url);
             }
@@ -449,16 +440,13 @@ namespace CategoryTreeGenerator
             string name = $"{parent.Description} in {l.City.Description} - {l.EndLocation.Description} " +
                           $"({l.Coast.Description}, {l.Province.Description}, {l.Area.Description})";
 
-            string baseName =
-                $"{endLocationPath}\\{name}";
-
             string url = $"{parent.Url}/{l.Coast.Url}/{l.Province.Url}/{l.City.Url}/{l.EndLocation.Url}";
 
             if (!_landingUrls.Contains(url))
             {
                 CreateProduct(name, url, endLocationId);
 
-                AttachTags(baseName, name, url, endLocationId);
+                AttachTags(name, url, endLocationId);
 
                 _landingUrls.Add(url);
             }
@@ -466,9 +454,8 @@ namespace CategoryTreeGenerator
             return (endLocationPath, endLocationId);
         }
 
-        private static void BuildEndLocation2(string path, BaseItem parent, Location l, string cityId)
+        private static void BuildEndLocation2(BaseItem parent, Location l, string cityId)
         {
-            string endLocation2Path = path + "\\end_location2";
             string endLocation2Id = _categoriesIds.EndLocation2Id;
 
             if (string.IsNullOrEmpty(endLocation2Id))
@@ -492,17 +479,13 @@ namespace CategoryTreeGenerator
                           $"- {l.EndLocation2.Description} in {l.EndLocation.Description} " +
                           $"({l.Coast.Description}, {l.Province.Description}, {l.Area.Description})";
 
-            string baseName =
-                $"{endLocation2Path}\\{name}";
-
-            string url =
-                $"{parent.Url}/{l.Coast.Url}/{l.Province.Url}/{l.City.Url}/{l.EndLocation2.Url}-in-{l.EndLocation.Url}";
+            string url = $"{parent.Url}/{l.Coast.Url}/{l.Province.Url}/{l.City.Url}/{l.EndLocation2.Url}-in-{l.EndLocation.Url}";
 
             if (!_landingUrls.Contains(url))
             {
                 CreateProduct(name, url, endLocation2Id);
 
-                AttachTags(baseName, name, url, endLocation2Id);
+                AttachTags(name, url, endLocation2Id);
 
                 _landingUrls.Add(url);
             }
